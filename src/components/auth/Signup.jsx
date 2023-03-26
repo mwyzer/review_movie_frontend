@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createUser } from '../../api/auth';
 import { commonModalClasses } from '../../utils/theme';
 import Container from '../Container';
 import CustomLink from '../CustomLink';
@@ -8,10 +9,8 @@ import Submit from '../form/Submit';
 import Title from '../form/Title';
 
 const validateUserInfo = ({ name, email, password }) => {
-  const isValidEmail = /^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/;
-  const isValidName =
-    /^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| )[a-zA-Z0-9])*[a-zA-Z0-9]+$/;
-  const isValidPassword = password.length;
+  const isValidEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const isValidName = /^[a-z A-Z]+$/;
 
   if (!name.trim()) return { ok: false, error: 'Name is missing!' };
   if (!isValidName.test(name)) return { ok: false, error: 'Invalid name!' };
@@ -20,7 +19,7 @@ const validateUserInfo = ({ name, email, password }) => {
   if (!isValidEmail.test(email)) return { ok: false, error: 'Invalid email!' };
 
   if (!password.trim()) return { ok: false, error: 'Password is missing!' };
-  if (!isValidPassword < 8)
+  if (password.length < 8)
     return { ok: false, error: 'Password must be 8 characters long!' };
 
   return { ok: true };
@@ -38,13 +37,15 @@ export default function Signup() {
     setUserInfo({ ...userInfo, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { ok, error } = validateUserInfo(userInfo);
 
     if (!ok) return console.log(error);
 
-    console.log(userInfo);
+    const response = await createUser(userInfo);
+    if (response.error) return console.log(response.error);
+    console.log(response.user);
   };
 
   const { name, email, password } = userInfo;

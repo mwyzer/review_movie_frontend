@@ -1,6 +1,14 @@
-import axios from 'axios';
 import client from './client';
 
-const createUser = async (userInfo) => {
-  await client.post('http://localhost:8000/api/user/create');
+export const createUser = async (userInfo) => {
+  try {
+    const { data } = await client.post('/user/signup', userInfo);
+    return data;
+  } catch (error) {
+    console.log(error.response?.data);
+    const { response } = error;
+    if (response?.data) return response.data;
+
+    return { error: error.message || error };
+  }
 };
